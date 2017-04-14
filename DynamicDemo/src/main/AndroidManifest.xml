@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="android.leekm.top.dynamicapp">
+
+    <application
+        android:name="android.leekm.top.dynamicapp.App"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/lib_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name="top.leekm.android.dynamiclib.DynamicActivity"
+            android:enabled="true"
+            android:theme="@style/DynamicSdkStyle">
+            <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.MAIN" />-->
+            <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+
+            <meta-data
+                android:name="dyn:Activity"
+                android:value="top.leekm.android.dynamicplugin.MainActivity" />
+            <meta-data
+                android:name="dyn:Bundle"
+                android:value="libplugin.so" />
+        </activity>
+
+        <activity
+            android:name="android.leekm.top.dynamicapp.ListFileActivity"
+            android:label="@string/list_file">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

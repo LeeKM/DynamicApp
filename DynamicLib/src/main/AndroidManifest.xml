@@ -1,0 +1,15 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="top.leekm.android.dynamiclib">
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/lib_name"
+        android:supportsRtl="false">
+        <activity
+            android:name="top.leekm.android.dynamiclib.DynamicActivity"
+            android:theme="@style/DynamicSdkStyle"></activity>
+    </application>
+
+</manifest>
