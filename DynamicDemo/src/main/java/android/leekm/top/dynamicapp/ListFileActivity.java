@@ -1,6 +1,7 @@
 package android.leekm.top.dynamicapp;
 
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -25,16 +26,21 @@ public class ListFileActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private String getDirInfo() {
+        ApplicationInfo info = getApplicationInfo();
+
         StringBuffer stringBuffer = new StringBuffer();
         String root = getCacheDir().getParent();
         travel(new File(root).listFiles(), stringBuffer, "");
         stringBuffer.append("\n\n");
-        root = new File(getApplicationInfo().nativeLibraryDir).getParent();
+        root = info.nativeLibraryDir;
         travel(new File(root).listFiles(), stringBuffer, "");
         return stringBuffer.toString();
     }
 
     private void travel(File[] files, StringBuffer buffer, String prefix) {
+        if(null == files) {
+            return;
+        }
         for (File file : files) {
             buffer.append(prefix);
             buffer.append(file.getName());

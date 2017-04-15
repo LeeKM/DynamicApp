@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 
 import dalvik.system.DexClassLoader;
 import top.leekm.android.dynamiclib.utils.DynamicClassLoader;
+import top.leekm.android.dynamiclib.utils.FileUtils;
 
 /**
  * Created by lkm on 2017/4/3.
@@ -168,9 +169,10 @@ public class DynamicActivity extends Activity {
 //        String root = Environment.getExternalStorageDirectory().getAbsolutePath() + "/plugin";
 //        new File(root).mkdirs();
 
-        String root = getApplicationInfo().nativeLibraryDir;
+        String source = getApplicationInfo().nativeLibraryDir + "/" + bundleName;
+        String path = getDir("apk", MODE_PRIVATE).getAbsolutePath() + "/" + bundleName.replace("so", "apk");
 
-        String path = root + "/" + bundleName;
+        FileUtils.fileCopy(source, path);
 
         mAssetManager = AssetManager.class.newInstance();
 
@@ -184,7 +186,7 @@ public class DynamicActivity extends Activity {
         mTheme.setTo(super.getTheme());
 
         mClassLoader = new DynamicClassLoader(path, getDir("dynDex",
-                MODE_PRIVATE).getAbsolutePath(), null, super.getClassLoader());
+                MODE_PRIVATE).getAbsolutePath(), getApplicationInfo().sourceDir, super.getClassLoader());
 
         Class<DynamicActivityStub> clazz = (Class<DynamicActivityStub>) mClassLoader.loadClass(activityClazz);
         mStub = clazz.newInstance();

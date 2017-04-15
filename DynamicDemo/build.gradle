@@ -22,7 +22,6 @@ android {
     aaptOptions {
 //         additionalParameters '--package-id', '3'
     }
-
 }
 
 dependencies {

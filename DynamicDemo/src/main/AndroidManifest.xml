@@ -6,6 +6,7 @@
         android:name="android.leekm.top.dynamicapp.App"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/lib_name"
+        android:largeHeap="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme">
         <activity

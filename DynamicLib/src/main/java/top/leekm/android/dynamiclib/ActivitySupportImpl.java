@@ -2,7 +2,10 @@ package top.leekm.android.dynamiclib;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,10 +16,14 @@ import android.view.View;
  * Created by lkm on 2017/4/3.
  */
 
-public class ActivitySupportImpl extends ContextThemeWrapper
+public class ActivitySupportImpl extends ContextWrapper
         implements ActivitySupport {
 
     private Activity mActivity;
+
+    public ActivitySupportImpl() {
+        super(null);
+    }
 
     public Activity getActivity() {
         if (null == mActivity) {
@@ -58,5 +65,48 @@ public class ActivitySupportImpl extends ContextThemeWrapper
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         return false;
+    }
+
+
+    /**************Activity Life-Circle**************/
+
+    public void onCreate(Bundle savedInstance) {
+
+    }
+
+    public void onSaveInstanceState(Bundle outState) {
+
+    }
+
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+
+    }
+
+    public void onStart() {
+
+    }
+
+    public void onRestart() {
+
+    }
+
+    public void onResume() {
+
+    }
+
+    public void onPause() {
+
+    }
+
+    public void onStop() {
+
+    }
+
+    public void onDestroy() {
+
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
     }
 }
