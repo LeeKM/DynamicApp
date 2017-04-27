@@ -6,6 +6,12 @@ package top.leekm.android.dynamiclib;
 
 public class DynamicBundle {
 
-    public String title = "Bundle";
+    // bundle的名字
+    public String bundleName;
 
+    // bundle文件路径，若空则按照默认规则查找
+    public String filePath;
+
+    // bundle安全校验序列
+    public String secure;
 }

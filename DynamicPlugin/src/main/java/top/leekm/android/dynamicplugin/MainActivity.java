@@ -32,7 +32,7 @@ public class MainActivity extends DynamicActivityStub {
             Toast.makeText(this, "动态的", Toast.LENGTH_LONG).show();
         } else if (itemId == R.id.my_collect) {
             Intent intent = new Intent(this, DynamicActivity.class);
-            intent.putExtra(DynamicActivity.BUNDLE_TAG, "libcollection.so");
+            intent.putExtra(DynamicActivity.BUNDLE_TAG, "collection");
             intent.putExtra(DynamicActivity.ACTIVITY_TAG, "top.leekm.android.dynamicplugin.CollectionActivity");
             startActivity(intent);
         }

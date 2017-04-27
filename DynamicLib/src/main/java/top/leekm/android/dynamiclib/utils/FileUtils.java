@@ -3,10 +3,12 @@ package top.leekm.android.dynamiclib.utils;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Stack;
 
 /**
  * Created by lkm on 2017/4/3.
@@ -14,58 +16,73 @@ import java.io.OutputStream;
 
 public class FileUtils {
 
+    private final static String BASE_DIR = "dynSdk";
+
     public static File getFile(String path) {
         return new File(path);
     }
 
-    public static boolean isFileExist(String file) {
+    public static boolean fileExist(String file) {
         return getFile(file).exists();
     }
 
-    public static void fileCopy(String from, String to) throws IOException {
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
+    public static boolean linkToFile(String symble, String target) throws IOException {
+        return linkToFile(symble, target, false);
+    }
+
+    public static boolean linkToFile(String symble, String target, boolean force) throws IOException {
+        if (!fileExist(target)) {
+            throw new FileNotFoundException("target file not found: " + target);
+        }
+        return execAndWait(String.format("ln -s %s %s %s", force ? "-f" : "", target, symble));
+    }
+
+    public static void deleteFile(String target) throws IOException {
+        execAndWait(String.format("rm -rf %s", target));
+    }
+
+    public static byte[] getFileSHA256Digest(File file) throws IOException {
         try {
-            fis = new FileInputStream(getFile(from));
-            fos = new FileOutputStream(getFile(to));
-            streamCopy(fis, fos);
-        } catch (IOException e) {
-            throw e;
-        } finally {
-            close(fis);
-            close(fos);
+            return getFileDigest(file, "SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public static void streamToFile(InputStream inputStream,
-                                    String file) throws IOException {
-        FileOutputStream fileOutputStream = null;
+    public static byte[] getFileDigest(File file, String algorithm) throws NoSuchAlgorithmException, IOException {
+        MessageDigest digest = MessageDigest.getInstance(algorithm);
+        DigestInputStream dis = new DigestInputStream(new FileInputStream(file), digest);
+        while (dis.read() >= 0) {
+            // do-nop
+        }
+        return digest.digest();
+    }
+
+    private static boolean execAndWait(String cmd) throws IOException {
         try {
-            fileOutputStream = new FileOutputStream(getFile(file));
-            streamCopy(inputStream, fileOutputStream);
-        } catch (IOException ex) {
-            throw ex;
-        } finally {
-            close(fileOutputStream);
+            Process process = Runtime.getRuntime().exec(cmd);
+            return 0 == process.waitFor();
+        } catch (InterruptedException e) {
+            return false;
         }
     }
 
-    public static void streamCopy(InputStream is,
-                                  OutputStream os) throws IOException {
-        byte[] buf = new byte[512];
-        int len = -1;
-        while ((len = is.read(buf)) > 0) {
-            os.write(buf, 0, len);
-        }
-        os.flush();
-    }
-
-    public static void close(Closeable closeable) {
+    public static void close(Object closeable) {
         if (null != closeable) {
-            try {
-                closeable.close();
-            } catch (Throwable throwable) {
-                // ignore
+            if (closeable instanceof Closeable) {
+                try {
+                    ((Closeable) closeable).close();
+                } catch (Throwable throwable) {
+                    // ignore
+                    throwable.printStackTrace();
+                }
+            } else {
+                try {
+                    ReflectUtils.invokeMethod(closeable, "close");
+                } catch (Throwable throwable) {
+                    // ignore
+                    throwable.printStackTrace();
+                }
             }
         }
     }

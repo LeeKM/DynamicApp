@@ -23,7 +23,7 @@
                 android:value="top.leekm.android.dynamicplugin.MainActivity" />
             <meta-data
                 android:name="dyn:Bundle"
-                android:value="libplugin.so" />
+                android:value="plugin" />
         </activity>
 
         <activity

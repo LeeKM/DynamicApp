@@ -1,7 +1,6 @@
 package top.leekm.android.dynamiclib;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -9,15 +8,14 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PersistableBundle;
+import android.text.TextUtils;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import java.io.File;
 import java.lang.reflect.Method;
 
-import dalvik.system.DexClassLoader;
-import top.leekm.android.dynamiclib.utils.DynamicClassLoader;
+import top.leekm.android.dynamiclib.utils.ClassUtils;
 import top.leekm.android.dynamiclib.utils.FileUtils;
 
 /**
@@ -26,33 +24,21 @@ import top.leekm.android.dynamiclib.utils.FileUtils;
 
 public class DynamicActivity extends Activity {
 
-    public final static String ACTIVITY_TAG = "dyn:Activity";
-    public final static String BUNDLE_TAG = "dyn:Bundle";
-
-    private String activityClazz;
-    private String bundleName;
-
-    DynamicBundle bundle = new DynamicBundle();
+    String activityClazz;
+    String bundleName;
+    DynamicSDK sdk;
 
     DynamicResources mResources;
     AssetManager mAssetManager;
     DynamicActivityStub mStub;
-    DynamicClassLoader mClassLoader;
+    ClassLoader mClassLoader;
     Resources.Theme mTheme;
-
-    @Override
-    public void setTitle(CharSequence title) {
-        super.setTitle(bundle.title);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         this.configBundleInfo(getIntent());
-        try {
-            this.initEnvironment();
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
-        }
+        sdk = DynamicSDK.sharedInstance(this);
+        sdk.mHelper.configActivityStub(this);
         super.onCreate(savedInstanceState);
         mStub.onCreate(savedInstanceState);
     }
@@ -64,8 +50,7 @@ public class DynamicActivity extends Activity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState,
-                                    PersistableBundle outPersistentState) {
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
         mStub.onSaveInstanceState(outState, outPersistentState);
     }
@@ -143,15 +128,15 @@ public class DynamicActivity extends Activity {
     }
 
     private void configBundleInfo(Intent data) {
-        String activityClazz = null == data ? null : data.getStringExtra(ACTIVITY_TAG);
-        String bundleName = null == data ? null : data.getStringExtra(BUNDLE_TAG);
+        String activityClazz = null == data ? null : data.getStringExtra(DynamicSDK.ACTIVITY_TAG);
+        String bundleName = null == data ? null : data.getStringExtra(DynamicSDK.BUNDLE_TAG);
         Exception exc = null;
         if (null == activityClazz && null == bundleName) {
             try {
                 android.content.pm.ActivityInfo info = getPackageManager()
                         .getActivityInfo(getComponentName(), PackageManager.GET_META_DATA);
-                activityClazz = info.metaData.getString(ACTIVITY_TAG);
-                bundleName = info.metaData.getString(BUNDLE_TAG);
+                activityClazz = info.metaData.getString(DynamicSDK.ACTIVITY_TAG);
+                bundleName = info.metaData.getString(DynamicSDK.BUNDLE_TAG);
             } catch (PackageManager.NameNotFoundException e) {
                 exc = e;
             }
@@ -166,18 +151,19 @@ public class DynamicActivity extends Activity {
 
     private void initEnvironment() throws Throwable {
 
-//        String root = Environment.getExternalStorageDirectory().getAbsolutePath() + "/plugin";
-//        new File(root).mkdirs();
+        String firstSearch = Environment.getExternalStorageDirectory().getAbsolutePath() + "/plugin";
+        new File(firstSearch).mkdirs();
 
         String source = getApplicationInfo().nativeLibraryDir + "/" + bundleName;
-        String path = getDir("apk", MODE_PRIVATE).getAbsolutePath() + "/" + bundleName.replace("so", "apk");
 
-        FileUtils.fileCopy(source, path);
+        if (FileUtils.fileExist(firstSearch + "/" + bundleName)) {
+            source = firstSearch + "/" + bundleName;
+        }
 
         mAssetManager = AssetManager.class.newInstance();
 
         Method addAssetPath = mAssetManager.getClass().getMethod("addAssetPath", String.class);
-        addAssetPath.invoke(mAssetManager, path);
+        addAssetPath.invoke(mAssetManager, source);
 
         mResources = new DynamicResources(mAssetManager, super.getResources().getDisplayMetrics(),
                 super.getResources().getConfiguration());
@@ -185,7 +171,7 @@ public class DynamicActivity extends Activity {
         mTheme = mResources.newTheme();
         mTheme.setTo(super.getTheme());
 
-        mClassLoader = new DynamicClassLoader(path, getDir("dynDex",
+        mClassLoader = ClassUtils.create(source, getDir("dynDex",
                 MODE_PRIVATE).getAbsolutePath(), getApplicationInfo().sourceDir, super.getClassLoader());
 
         Class<DynamicActivityStub> clazz = (Class<DynamicActivityStub>) mClassLoader.loadClass(activityClazz);
