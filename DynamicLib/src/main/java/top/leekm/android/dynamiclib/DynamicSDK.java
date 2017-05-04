@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
+import android.os.Bundle;
 
 import java.io.IOException;
 
@@ -29,8 +29,8 @@ public class DynamicSDK {
     DynamicHelper mHelper;
 
     private DynamicSDK(Context context, String rsaPublic) {
-        mHelper = new DynamicHelper(this);
         mAppContext = context.getApplicationContext();
+        mHelper = new DynamicHelper(this);
         this.mRsaPublic = rsaPublic;
         this.decrypter = SecureUtil.generateRSAPublicKeyDecryptor(mRsaPublic);
     }
@@ -48,29 +48,56 @@ public class DynamicSDK {
         return sdk;
     }
 
-    public void startActivity(Activity context, String bundleName, Class<? extends DynamicActivityStub> targetStub) {
-        startActivity(context, bundleName, DynamicActivity.class, targetStub);
+    public void startActivityForResult(Activity context, String bundleName,
+                                       Class<? extends DynamicActivityStub> targetStub, int reqCode, Bundle ext) {
+        startActivityForResult(context, bundleName, DynamicActivity.class, targetStub, reqCode, ext);
+    }
+
+    public void startActivityForResult(Activity context, String bundleName, Class<? extends Activity> targetActivity,
+                                       Class<? extends DynamicActivityStub> targetStub, int reqCode, Bundle ext) {
+        startActivityForResult(context, bundleName, targetActivity.getName(), targetStub.getName(), reqCode, ext);
+    }
+
+    public void startActivityForResult(final Activity context, final String bundleName,
+                                       final String targetActivity, final String targetStub, int reqCode, final Bundle ext) {
+        startActivityInternal(context, bundleName, targetActivity, targetStub, reqCode, ext, true);
+    }
+
+    public void startActivity(Activity context, String bundleName, Class<? extends DynamicActivityStub> targetStub, Bundle ext) {
+        startActivity(context, bundleName, DynamicActivity.class, targetStub, ext);
     }
 
     public void startActivity(Activity context, String bundleName, Class<? extends Activity> targetActivity,
-                              Class<? extends DynamicActivityStub> targetStub) {
-        this.startActivity(context, bundleName, targetActivity.getName(), targetStub.getName());
+                              Class<? extends DynamicActivityStub> targetStub, Bundle ext) {
+        this.startActivity(context, bundleName, targetActivity.getName(), targetStub.getName(), ext);
     }
 
-    public void startActivity(final Activity context, final String bundleName, final String targetActivity, final String targetStub) {
+    public void startActivity(final Activity context, final String bundleName,
+                              final String targetActivity, final String targetStub, final Bundle ext) {
+        startActivityInternal(context, bundleName, targetActivity, targetStub, -1, ext, false);
+    }
+
+    private void startActivityInternal(final Activity context, final String bundleName,
+                                       final String targetActivity, final String targetStub,
+                                       final int reqCode, final Bundle ext, final boolean needResult) {
         RunOrThrow.wrapper(new RunOrThrow() {
             @Override
             protected void todo() throws Throwable {
                 Intent intent = new Intent();
                 intent.setComponent(new ComponentName(context.getPackageName(), targetActivity));
+                intent.putExtras(ext);
                 intent.putExtra(BUNDLE_TAG, bundleName);
                 intent.putExtra(ACTIVITY_TAG, targetStub);
-                context.startActivity(intent);
+                if (needResult) {
+                    context.startActivityForResult(intent, reqCode);
+                } else {
+                    context.startActivity(intent);
+                }
             }
         });
     }
 
-    public void registBundle(DynamicBundle bundle, boolean override) throws IOException {
+    public void registBundle(DynamicBundle bundle) throws IOException {
         if (SecureUtil.checkBundleDigest(bundle, decrypter)) {
             mHelper.registBundle(bundle);
         } else {

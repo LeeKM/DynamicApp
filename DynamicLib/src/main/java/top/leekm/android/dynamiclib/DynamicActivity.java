@@ -108,6 +108,11 @@ public class DynamicActivity extends Activity {
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        mStub.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
     public AssetManager getAssets() {
         return mAssetManager == null ? super.getAssets() : mAssetManager;
     }
@@ -148,35 +153,4 @@ public class DynamicActivity extends Activity {
             this.bundleName = bundleName;
         }
     }
-
-    private void initEnvironment() throws Throwable {
-
-        String firstSearch = Environment.getExternalStorageDirectory().getAbsolutePath() + "/plugin";
-        new File(firstSearch).mkdirs();
-
-        String source = getApplicationInfo().nativeLibraryDir + "/" + bundleName;
-
-        if (FileUtils.fileExist(firstSearch + "/" + bundleName)) {
-            source = firstSearch + "/" + bundleName;
-        }
-
-        mAssetManager = AssetManager.class.newInstance();
-
-        Method addAssetPath = mAssetManager.getClass().getMethod("addAssetPath", String.class);
-        addAssetPath.invoke(mAssetManager, source);
-
-        mResources = new DynamicResources(mAssetManager, super.getResources().getDisplayMetrics(),
-                super.getResources().getConfiguration());
-        mResources.attachHostResources(super.getResources());
-        mTheme = mResources.newTheme();
-        mTheme.setTo(super.getTheme());
-
-        mClassLoader = ClassUtils.create(source, getDir("dynDex",
-                MODE_PRIVATE).getAbsolutePath(), getApplicationInfo().sourceDir, super.getClassLoader());
-
-        Class<DynamicActivityStub> clazz = (Class<DynamicActivityStub>) mClassLoader.loadClass(activityClazz);
-        mStub = clazz.newInstance();
-        mStub.attachBaseContext(this);
-    }
-
 }

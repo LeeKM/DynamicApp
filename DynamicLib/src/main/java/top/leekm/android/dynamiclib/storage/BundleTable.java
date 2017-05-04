@@ -39,6 +39,20 @@ public class BundleTable extends Table {
         return queryExist(query, new String[]{bundleName});
     }
 
+    public DynamicBundle getBundleByName(String bundleName) {
+        String query = "SELECT * FROM bundle_table WHERE name=?;";
+        Cursor cursor = sharedDB.rawQuery(query, new String[] {bundleName});
+        if (null != cursor && cursor.moveToNext()) {
+            DynamicBundle bundle = new DynamicBundle();
+            bundle.bundleName = cursor.getString(cursor.getColumnIndex("name"));
+            bundle.filePath = cursor.getString(cursor.getColumnIndex("file_path"));
+            bundle.secure = cursor.getString(cursor.getColumnIndex("secure"));
+            FileUtils.close(cursor);
+            return bundle;
+        }
+        return null;
+    }
+
     private boolean queryExist(String query, String[] args) {
         Cursor cursor = sharedDB.rawQuery(query, args);
         boolean exist = false;

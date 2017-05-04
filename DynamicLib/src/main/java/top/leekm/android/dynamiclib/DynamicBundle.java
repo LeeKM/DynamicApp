@@ -14,4 +14,17 @@ public class DynamicBundle {
 
     // bundle安全校验序列
     public String secure;
+
+    public DynamicBundle() {
+        this(null);
+    }
+
+    public DynamicBundle(String bundleName) {
+        this(bundleName, null);
+    }
+
+    public DynamicBundle(String bundleName, String filePath) {
+        this.bundleName = bundleName;
+        this.filePath = filePath;
+    }
 }

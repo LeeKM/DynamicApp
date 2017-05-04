@@ -4,12 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import top.leekm.android.dynamiclib.DynamicActivityStub;
+import top.leekm.android.dynamiclib.DynamicSDK;
 
 /**
  * Created by lkm on 2017/4/14.
@@ -19,14 +21,24 @@ public class CollectionActivity extends DynamicActivityStub
         implements View.OnClickListener {
 
     ListView listView;
+    DynamicSDK sdk;
 
     @Override
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
+        sdk = DynamicSDK.sharedInstance(this);
         setContentView(R.layout.collection_activity);
         findViewById(R.id.ant_me).setOnClickListener(this);
         listView = (ListView) findViewById(R.id.listView);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Bundle bundle = new Bundle();
+                bundle.putString("text", view.toString() + " - " + position);
+                sdk.startActivity(getActivity(), "collection", MainActivity.class, bundle);
+            }
+        });
     }
 
     private BaseAdapter adapter = new BaseAdapter() {
