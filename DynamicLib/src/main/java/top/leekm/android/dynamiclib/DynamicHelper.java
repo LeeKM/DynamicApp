@@ -32,8 +32,15 @@ public class DynamicHelper {
     }
 
     public void registBundle(DynamicBundle bundle) throws IOException {
+        registBundle(bundle, true);
+    }
+
+    public void registBundle(DynamicBundle bundle, boolean preload) throws IOException {
         unRegistBundle(bundle);
         mTable.registBundle(bundle);
+        if (preload) {
+            getOrCreateLoadedBundle(bundle);
+        }
     }
 
     public void unRegistBundle(DynamicBundle bundle) throws IOException {

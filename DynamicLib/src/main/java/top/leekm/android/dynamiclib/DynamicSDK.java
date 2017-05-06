@@ -67,6 +67,10 @@ public class DynamicSDK {
         startActivity(context, bundleName, DynamicActivity.class, targetStub, ext);
     }
 
+    public void startActivity(Activity context, String bundleName, String targetStub, Bundle ext) {
+        startActivity(context, bundleName, DynamicActivity.class.getName(), targetStub, ext);
+    }
+
     public void startActivity(Activity context, String bundleName, Class<? extends Activity> targetActivity,
                               Class<? extends DynamicActivityStub> targetStub, Bundle ext) {
         this.startActivity(context, bundleName, targetActivity.getName(), targetStub.getName(), ext);
@@ -85,7 +89,9 @@ public class DynamicSDK {
             protected void todo() throws Throwable {
                 Intent intent = new Intent();
                 intent.setComponent(new ComponentName(context.getPackageName(), targetActivity));
-                intent.putExtras(ext);
+                if (null != ext) {
+                    intent.putExtras(ext);
+                }
                 intent.putExtra(BUNDLE_TAG, bundleName);
                 intent.putExtra(ACTIVITY_TAG, targetStub);
                 if (needResult) {
@@ -98,8 +104,12 @@ public class DynamicSDK {
     }
 
     public void registBundle(DynamicBundle bundle) throws IOException {
+        registBundle(bundle, true);
+    }
+
+    public void registBundle(DynamicBundle bundle, boolean preload) throws IOException {
         if (SecureUtil.checkBundleDigest(bundle, decrypter)) {
-            mHelper.registBundle(bundle);
+            mHelper.registBundle(bundle, preload);
         } else {
             throw new SecurityException("check bundle failed");
         }

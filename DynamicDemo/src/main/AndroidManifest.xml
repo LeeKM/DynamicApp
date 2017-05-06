@@ -5,29 +5,38 @@
     <application
         android:name="android.leekm.top.dynamicapp.App"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/lib_name"
+        android:label="@string/app_name"
         android:largeHeap="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/AppTheme">
         <activity
             android:name="top.leekm.android.dynamiclib.DynamicActivity"
             android:enabled="true"
             android:theme="@style/DynamicSdkStyle">
-            <!--<intent-filter>-->
-            <!--<action android:name="android.intent.action.MAIN" />-->
-            <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
             <meta-data
                 android:name="dyn:Activity"
-                android:value="top.leekm.android.dynamicplugin.MainActivity" />
+                android:value="top.leekm.android.launcher.LauncherActivity" />
             <meta-data
                 android:name="dyn:Bundle"
-                android:value="plugin" />
+                android:value="launcher" />
         </activity>
 
         <activity
             android:name="android.leekm.top.dynamicapp.ListFileActivity"
+            android:icon="@android:drawable/ic_dialog_info"
+            android:label="@string/list_file">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="android.leekm.top.dynamicapp.TestActivity"
+            android:icon="@android:drawable/ic_dialog_email"
             android:label="@string/list_file">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

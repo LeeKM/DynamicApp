@@ -24,4 +24,8 @@ public interface ActivitySupport {
 
     boolean onOptionsItemSelected(MenuItem item);
 
+    void startActivity(Intent intent);
+
+    void startActivity(String bundleName, Intent intent);
+
 }

@@ -1,1 +1,1 @@
-include ':DynamicDemo', ':DynamicLib', ':DynamicPlugin'
+include ':DynamicDemo', ':DynamicLib', ':Launcher', ':HomePlugin'

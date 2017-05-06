@@ -1,6 +1,7 @@
 package top.leekm.android.dynamiclib;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -67,6 +68,18 @@ public class ActivitySupportImpl extends ContextWrapper
         return false;
     }
 
+    @Override
+    public void startActivity(Intent intent) {
+        throw new RuntimeException("unspecify bundleName");
+    }
+
+    @Override
+    public void startActivity(String bundleName, Intent intent) {
+        DynamicSDK sdk = DynamicSDK.sharedInstance(getActivity());
+        ComponentName component = intent.getComponent();
+        sdk.startActivity(getActivity(), bundleName, DynamicActivity.class.getName(),
+                component.getClassName(), intent.getExtras());
+    }
 
     /**************Activity Life-Circle**************/
 

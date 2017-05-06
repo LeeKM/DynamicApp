@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -91,40 +92,12 @@ public class ListFileActivity extends AppCompatActivity implements View.OnClickL
     public static String publicKey = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAM5wG8nFtp11ukWDlesZggUUpF4Wo6nRMoxyULLXY+pEv4hdHroaTKfPQkETy64wxVf+BvQTjTP6lGIGP6Qp7SMCAwEAAQ==";
     public static String privateKey = "MIIBVgIBADANBgkqhkiG9w0BAQEFAASCAUAwggE8AgEAAkEAznAbycW2nXW6RYOV6xmCBRSkXhajqdEyjHJQstdj6kS/iF0euhpMp89CQRPLrjDFV/4G9BONM/qUYgY/pCntIwIDAQABAkEAhgYaxGBsMsYf7MmFJ2EkHJBONheUoceDfdMpuTJFV+2nt7KAlMvMSrw989YjGgrCE4oHwc9RGV7RTREOxT7YIQIhAOhD0VzvagVxP/dWr3JGOTmbU3CIXkkL913I1qD0yR5vAiEA44ikWgsdDd7VIXjLpqLGfykD2ygoYox36/3YBGbzdo0CIQDQ6c8zTJWMd6UVkH8WxltKmY+ftMk54u2JCdEjzYnpOQIhAIwwdWrRLB6Oq+yKm5dY9UoFwE14aaGGgKDTbxQPRnRFAiBychowLtk81Uly6oUPoic7ts6l6RgyDAPNSQZKqOhZGQ==";
 
-    boolean installed = false;
-
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.button) {
             startActivity(new Intent(this, DynamicActivity.class));
         } else if (v.getId() == R.id.testButton) {
-            executor.execute(new Run() {
-                @Override
-                protected void todo() throws Throwable {
-                    if (!installed) {
-                        DynamicSDK sdk = DynamicSDK.sharedInstance(ListFileActivity.this, publicKey);
-                        File libDir = new File(Environment.getExternalStorageDirectory(), "plugin");
-                        String srcPath = new File(libDir, "libcollection_1_1.so").getAbsolutePath();
-                        DynamicBundle bundle = new DynamicBundle();
-                        bundle.bundleName = "collection";
-                        bundle.filePath = srcPath;
-                        SecureUtil.getBundleDigest(privateKey, bundle);
-                        sdk.registBundle(bundle);
-                    } else {
-
-                        DynamicSDK sdk = DynamicSDK.sharedInstance(ListFileActivity.this, publicKey);
-                        String srcPath = new File(getApplicationInfo().nativeLibraryDir, "libcollection.so").getAbsolutePath();
-                        DynamicBundle bundle = new DynamicBundle();
-                        bundle.bundleName = "collection";
-                        bundle.filePath = srcPath;
-                        SecureUtil.getBundleDigest(privateKey, bundle);
-                        sdk.registBundle(bundle);
-
-                    }
-
-                    installed = !installed;
-                }
-            });
+            Toast.makeText(this, "else", Toast.LENGTH_LONG).show();
         }
     }
 
